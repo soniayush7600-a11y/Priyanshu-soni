@@ -1,0 +1,26 @@
+name: Build Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+      - name: Build APK
+        run: dotnet build UpiPayApp.csproj -f net8.0-android -c Debug -p:EmbedAssembliesIntoApk=true
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: UpiPayApp-apk
+          path: "**/*-Signed.apk"
